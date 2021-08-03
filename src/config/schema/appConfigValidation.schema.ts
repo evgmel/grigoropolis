@@ -6,4 +6,5 @@ export default Joi.object({
     .valid(AppEnv.PRODUCTION, AppEnv.DEVELOPMENT, AppEnv.TEST)
     .default(AppEnv.DEVELOPMENT),
   APP_PORT: Joi.number().default(3000),
+  APP_HASHMAN_SECRET_KEY: Joi.string().default(''),
 });

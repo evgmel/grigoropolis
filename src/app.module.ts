@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
+import { HashmanModule } from './hashman/hashman.module';
 import configuration from './config/appConfig';
 import validationSchema from './config/schema/appConfigValidation.schema';
 
@@ -14,6 +15,7 @@ import validationSchema from './config/schema/appConfigValidation.schema';
         abortEarly: true,
       },
     }),
+    HashmanModule,
   ],
   controllers: [AppController],
   providers: [AppService],
