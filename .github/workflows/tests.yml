@@ -7,36 +7,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  lint-and-test:
     environment: staging_environment
     runs-on: ubuntu-20.04
-
     steps:
+      - uses: actions/checkout@v2
+
       - uses: actions/setup-node@v2.3.0
         with:
           node-version: 16.x
           cache: 'npm'
 
-      - uses: actions/checkout@v2
-
       - name: Install dependensies
         run: npm install
 
-  test:
-    environment: staging_environment
-    needs: [build]
-    runs-on: ubuntu-20.04
-
-    steps:
-      - uses: actions/setup-node@v2.3.0
-        with:
-          node-version: 16.x
-          cache: 'npm'
-
-      - uses: actions/checkout@v2
-
-      - name: Install dependensies
-        run: npm install
+      - name: Run linting
+        run: npm run lint
 
       - name: Run unit tests
         run: npm run test
