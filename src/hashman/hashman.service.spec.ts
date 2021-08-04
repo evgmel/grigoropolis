@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HashmanService } from './hashman.service';
+import {
+  DECODER_INTERFACE,
+  ENCODER_INTERFACE,
+  HASHMAN_SECRET_KEY,
+} from './interfaces/x-coder.interface';
 
 describe('HashmanService', () => {
   const secretKey = 'some-secret-key';
@@ -11,8 +16,16 @@ describe('HashmanService', () => {
       providers: [
         HashmanService,
         {
-          provide: 'HASHMAN_SECRET_KEY',
+          provide: HASHMAN_SECRET_KEY,
           useValue: secretKey,
+        },
+        {
+          provide: ENCODER_INTERFACE,
+          useExisting: HashmanService,
+        },
+        {
+          provide: DECODER_INTERFACE,
+          useExisting: HashmanService,
         },
       ],
     }).compile();

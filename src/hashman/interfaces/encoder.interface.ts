@@ -1,5 +1,5 @@
-import { CoderOptions } from './coder-options.interface';
+import { XCoderOptions } from './x-coder.interface';
 
 export interface Encoder {
-  encode(data: string | number, opts?: CoderOptions): Promise<string>;
+  encode(data: string | number, opts?: XCoderOptions): Promise<string>;
 }

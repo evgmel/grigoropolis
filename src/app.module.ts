@@ -14,6 +14,7 @@ import validationSchema from './config/schema/appConfigValidation.schema';
       validationOptions: {
         abortEarly: true,
       },
+      isGlobal: true,
     }),
     HashmanModule,
   ],

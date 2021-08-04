@@ -1,7 +1,7 @@
 import { Controller, Get, Query, UsePipes } from '@nestjs/common';
 import { AppService } from './app.service';
 import { SchemaValidationPipe } from './pipes/validation/schema-validation-pipe.service';
-import { userNameSchema } from './schemas/app.schema';
+import { userNameSchema } from './app.schema';
 
 @Controller()
 export class AppController {
