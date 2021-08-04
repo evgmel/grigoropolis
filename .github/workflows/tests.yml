@@ -31,7 +31,8 @@ jobs:
         run: npm install
 
       # Runs a set of commands using the runners shell
-      - name: Run unit && e2e tests
-        run: |
-          npm run test
-          npm run test:e2e
+      - name: Run unit tests
+        run: npm run test
+
+      - name: Run e2e tests
+        run: npm run test:e2e

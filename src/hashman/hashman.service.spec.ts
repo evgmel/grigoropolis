@@ -7,7 +7,7 @@ import {
 } from './interfaces/x-coder.interface';
 
 describe('HashmanService', () => {
-  const secretKey = 'some-secret-key';
+  const secretKey = 'fake-secret-key';
 
   let service: HashmanService;
 
