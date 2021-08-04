@@ -39,6 +39,10 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      - uses: actions/setup-node@v2.3.0
+        with:
+          node-version: 16.x
+
       - uses: actions/checkout@v2
 
       - name: Install dependensies
