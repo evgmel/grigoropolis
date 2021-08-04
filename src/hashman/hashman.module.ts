@@ -4,10 +4,10 @@ import { HashmanService } from './hashman.service';
 import { ConfigService } from '@nestjs/config';
 import AppConfig from '../config/interfaces/appConfig.interface';
 import {
-  HASHMAN_SECRET_KEY,
-  ENCODER_INTERFACE,
   DECODER_INTERFACE,
-} from './interfaces/x-coder.interface';
+  ENCODER_INTERFACE,
+  HASHMAN_SECRET_KEY,
+} from '../constants';
 
 @Module({
   controllers: [HashmanController],

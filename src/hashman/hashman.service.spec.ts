@@ -4,7 +4,7 @@ import {
   DECODER_INTERFACE,
   ENCODER_INTERFACE,
   HASHMAN_SECRET_KEY,
-} from './interfaces/x-coder.interface';
+} from '../constants';
 
 describe('HashmanService', () => {
   const secretKey = 'fake-secret-key';

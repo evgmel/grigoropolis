@@ -1,10 +1,8 @@
 import { AppEnv } from '../enums/appConfig.enum';
-import { HASHMAN_SECRET_KEY } from '../../hashman/interfaces/x-coder.interface';
-
-export const PORT = 'PORT';
+import { APP_ENV, APP_PORT, HASHMAN_SECRET_KEY } from '../../constants';
 
 export default interface AppConfig {
-  NODE_ENV: AppEnv;
-  [PORT]: number;
+  [APP_ENV]: AppEnv;
+  [APP_PORT]: number;
   [HASHMAN_SECRET_KEY]: string;
 }
