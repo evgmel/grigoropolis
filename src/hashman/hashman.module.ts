@@ -4,10 +4,12 @@ import { HashmanService } from './hashman.service';
 import { ConfigService } from '@nestjs/config';
 import AppConfig from '../config/interfaces/appConfig.interface';
 import {
-  DECODER_INTERFACE,
-  ENCODER_INTERFACE,
+  CRYPTOGRAPHER,
+  DECODER,
+  ENCODER,
   HASHMAN_SECRET_KEY,
 } from '../constants';
+import { DefaultCryptographerService } from './cryptographer/default-cryptographer.service';
 
 @Module({
   controllers: [HashmanController],
@@ -20,13 +22,17 @@ import {
       inject: [ConfigService],
     },
     {
-      provide: ENCODER_INTERFACE,
+      provide: ENCODER,
       useExisting: HashmanService,
     },
     {
-      provide: DECODER_INTERFACE,
+      provide: DECODER,
       useExisting: HashmanService,
     },
+    // {
+    //   provide: CRYPTOGRAPHER,
+    //   useClass: DefaultCryptographerService,
+    // },
   ],
   imports: [ConfigService],
 })

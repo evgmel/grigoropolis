@@ -4,14 +4,14 @@ import { Decoder } from './interfaces/decoder.interface';
 import { DecodeDataDTO, EncodeDataDTO } from './hashman.dto';
 import { SchemaValidationPipe } from '../pipes/validation/schema-validation-pipe.service';
 import { decodeDataSchema, encodeDataSchema } from './encode-data.schema';
-import { DECODER_INTERFACE, ENCODER_INTERFACE } from '../constants';
+import { DECODER, ENCODER } from '../constants';
 
 @Controller('hashman')
 export class HashmanController {
   constructor(
-    @Inject(ENCODER_INTERFACE)
+    @Inject(ENCODER)
     private readonly encoder: Encoder,
-    @Inject(DECODER_INTERFACE)
+    @Inject(DECODER)
     private readonly decoder: Decoder,
   ) {}
 

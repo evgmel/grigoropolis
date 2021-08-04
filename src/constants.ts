@@ -1,5 +1,6 @@
 export const HASHMAN_SECRET_KEY = 'HASHMAN_SECRET_KEY';
-export const ENCODER_INTERFACE = 'ENCODER_INTERFACE';
-export const DECODER_INTERFACE = 'DECODER_INTERFACE';
+export const ENCODER = 'ENCODER';
+export const DECODER = 'DECODER';
+export const CRYPTOGRAPHER = 'CRYPTOGRAPHER';
 export const APP_PORT = 'PORT';
 export const APP_ENV = 'NODE_ENV';
