@@ -13,36 +13,62 @@ export class DefaultCryptographerService implements Cryptographer {
     readonly iv?: string,
   ) {}
 
-  async decrypt(value: string): Promise<Buffer> {
-    return Buffer.from(value);
+  async decrypt(value: Buffer): Promise<Buffer> {
+    const decryptor = this.createDecryptor();
+
+    return Buffer.concat([decryptor.update(value), decryptor.final()]);
   }
 
-  async encrypt(value: string): Promise<Buffer> {
+  async encrypt(value: string | Buffer): Promise<Buffer> {
+    const encryptor = this.createEncryptor();
+
+    return Buffer.concat([encryptor.update(value), encryptor.final()]);
+  }
+
+  private createEncryptor(): crypto.CipherGCM {
     const algo = this.getAlgorithm();
     const key = this.getKeyHash();
     const iv = this.getIV();
 
-    const cipher = crypto.createCipheriv(algo, key, iv);
-
-    const firstPart = cipher.update(value, 'utf-8', 'base64');
-    const finalPart = cipher.final('base64');
-    return Buffer.from(`${firstPart}${finalPart}`);
+    return crypto.createCipheriv(algo, key, iv);
   }
 
-  private getKeyHash(): string {
+  private createDecryptor(): crypto.DecipherGCM {
+    const algo = this.getAlgorithm();
+    const key = this.getKeyHash();
+    const iv = this.getIV();
+
+    return crypto.createDecipheriv(algo, key, iv);
+  }
+
+  private getKeyHash(): Buffer {
     return crypto
       .createHash('sha256')
       .update(this.secretKey, 'utf-8')
-      .digest('base64')
-      .substr(0, 24);
+      .digest()
+      .slice(0, this.getKeyLength());
+  }
+
+  private getKeyLength(): number {
+    const algorithm = this.getAlgorithm();
+
+    if (algorithm === CryptoAlgorithm.AES_256_GCM) {
+      return 32;
+    }
+
+    if (algorithm === CryptoAlgorithm.AES_192_GCM) {
+      return 24;
+    }
+
+    return 16;
   }
 
   private getAlgorithm(): CryptoAlgorithm {
     return this.algorithm || CryptoAlgorithm.AES_256_GCM;
   }
 
-  private getIV(): string {
+  private getIV(): Buffer {
     const ivBuffer = this.iv ? Buffer.from(this.iv) : crypto.randomBytes(16);
-    return ivBuffer.toString('hex').slice(0, 16);
+    return ivBuffer.slice(0, 16);
   }
 }

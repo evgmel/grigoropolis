@@ -10,6 +10,6 @@ export enum CryptoAlgorithm {
 }
 
 export interface Cryptographer {
-  encrypt(value: string): Promise<Buffer>;
-  decrypt(value: string): Promise<Buffer>;
+  encrypt(value: string | Buffer): Promise<Buffer>;
+  decrypt(value: Buffer): Promise<Buffer>;
 }
