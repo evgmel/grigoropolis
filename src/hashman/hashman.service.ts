@@ -1,14 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Encoder } from './interfaces/encoder.interface';
-import { Decoder } from './interfaces/decoder.interface';
-import { XCoderOptions } from './interfaces/x-coder.interface';
-import { HASHMAN_SECRET_KEY } from '../constants';
+import { Cryptographer, XCoderOptions } from './interfaces';
+import { CRYPTOGRAPHER } from '../constants';
 
 @Injectable()
-export class HashmanService implements Encoder, Decoder {
+export class HashmanService {
   constructor(
-    @Inject(HASHMAN_SECRET_KEY)
-    private readonly secretKey: string,
+    @Inject(CRYPTOGRAPHER)
+    private readonly cryptographer: Cryptographer,
   ) {}
 
   async decode(data: string, opts?: XCoderOptions): Promise<string> {

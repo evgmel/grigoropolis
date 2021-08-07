@@ -1,6 +1,6 @@
 import { Controller, Post, Inject, Body, UsePipes } from '@nestjs/common';
-import { Encoder } from './interfaces/encoder.interface';
-import { Decoder } from './interfaces/decoder.interface';
+import { Encoder } from './interfaces';
+import { Decoder } from './interfaces';
 import { DecodeDataDTO, EncodeDataDTO } from './hashman.dto';
 import { SchemaValidationPipe } from '../pipes/validation/schema-validation-pipe.service';
 import { decodeDataSchema, encodeDataSchema } from './encode-data.schema';

@@ -9,7 +9,7 @@ import {
   ENCODER,
   HASHMAN_SECRET_KEY,
 } from '../constants';
-import { DefaultCryptographerService } from './cryptographer/default-cryptographer.service';
+import { CryptographerService } from './cryptographer/cryptographer.service';
 
 @Module({
   controllers: [HashmanController],
@@ -29,10 +29,16 @@ import { DefaultCryptographerService } from './cryptographer/default-cryptograph
       provide: DECODER,
       useExisting: HashmanService,
     },
-    // {
-    //   provide: CRYPTOGRAPHER,
-    //   useClass: DefaultCryptographerService,
-    // },
+    {
+      provide: CryptographerService,
+      useFactory: (configService: ConfigService) =>
+        configService.get<AppConfig>(HASHMAN_SECRET_KEY),
+      inject: [ConfigService],
+    },
+    {
+      provide: CRYPTOGRAPHER,
+      useValue: CryptographerService,
+    },
   ],
   imports: [ConfigService],
 })

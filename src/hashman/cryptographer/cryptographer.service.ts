@@ -5,7 +5,7 @@ import {
   DecryptOptions,
   EncryptionResult,
   EncryptOptions,
-} from '../interfaces/x-coder.interface';
+} from '../interfaces';
 import { types } from 'util';
 import { CryptoAlgorithm } from '../constants/crypto-algorithm.enum';
 

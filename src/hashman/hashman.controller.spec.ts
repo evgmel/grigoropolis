@@ -1,7 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HashmanController } from './hashman.controller';
 import { HashmanService } from './hashman.service';
-import { DECODER, ENCODER, HASHMAN_SECRET_KEY } from '../constants';
+import {
+  CRYPTOGRAPHER,
+  DECODER,
+  ENCODER,
+  HASHMAN_SECRET_KEY,
+} from '../constants';
+import { CryptographerService } from './cryptographer/cryptographer.service';
 
 describe('HashmanController', () => {
   const secretKey = 'fake-secret-key';
@@ -12,6 +18,10 @@ describe('HashmanController', () => {
       controllers: [HashmanController],
       providers: [
         HashmanService,
+        {
+          provide: CRYPTOGRAPHER,
+          useValue: new CryptographerService(secretKey),
+        },
         {
           provide: HASHMAN_SECRET_KEY,
           useValue: secretKey,

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CryptographerService } from './cryptographer.service';
-import { EncryptionResult } from '../interfaces/x-coder.interface';
+import { EncryptionResult } from '../interfaces';
 import * as faker from 'faker';
 import { CryptoAlgorithm } from '../constants/crypto-algorithm.enum';
 
