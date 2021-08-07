@@ -1,50 +1,94 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import {
-  CryptoAlgorithm,
   Cryptographer,
+  DecryptOptions,
+  EncryptionResult,
+  EncryptOptions,
 } from '../interfaces/x-coder.interface';
+import { types } from 'util';
+import { CryptoAlgorithm } from '../constants/crypto-algorithm.enum';
 
 @Injectable()
 export class DefaultCryptographerService implements Cryptographer {
   constructor(
-    readonly secretKey: string,
-    readonly algorithm?: CryptoAlgorithm,
-    readonly iv?: string,
+    private readonly secretKey: string,
+    private readonly algorithm?: CryptoAlgorithm,
+    private readonly iv?: string,
   ) {}
 
-  async decrypt(value: Buffer): Promise<Buffer> {
-    const decryptor = this.createDecryptor();
+  async decrypt(options: DecryptOptions): Promise<Buffer> {
+    const decryptor = this.createDecryptor(
+      options.algorithm,
+      options.iv,
+      options.secretKey &&
+        DefaultCryptographerService.toBuffer(options.secretKey),
+    );
+
+    const authTag =
+      options.authTag && DefaultCryptographerService.toBuffer(options.authTag);
+
+    decryptor.setAuthTag(authTag);
+    const value = DefaultCryptographerService.toBuffer(options.value);
 
     return Buffer.concat([decryptor.update(value), decryptor.final()]);
   }
 
-  async encrypt(value: string | Buffer): Promise<Buffer> {
-    const encryptor = this.createEncryptor();
+  async encrypt(options: EncryptOptions): Promise<EncryptionResult> {
+    const encryptor = this.createEncryptor(
+      options.algorithm,
+      options.iv,
+      options.secretKey &&
+        DefaultCryptographerService.toBuffer(options.secretKey),
+    );
 
-    return Buffer.concat([encryptor.update(value), encryptor.final()]);
+    const value = DefaultCryptographerService.toBuffer(options.value);
+
+    const encryptedValue = Buffer.concat([
+      encryptor.update(value),
+      encryptor.final(),
+    ]);
+    const authTag = encryptor.getAuthTag();
+
+    return {
+      authTag,
+      value: encryptedValue,
+      iv: this.getIV(options.iv),
+      algorithm: this.getAlgorithm(options.algorithm),
+    };
   }
 
-  private createEncryptor(): crypto.CipherGCM {
-    const algo = this.getAlgorithm();
-    const key = this.getKeyHash();
-    const iv = this.getIV();
+  private createEncryptor(
+    alg?: CryptoAlgorithm,
+    iv?: Buffer,
+    secret?: Buffer,
+  ): crypto.CipherGCM {
+    const algo = this.getAlgorithm(alg);
+    const key = this.getKeyHash(secret);
+    const IV = this.getIV(iv);
 
-    return crypto.createCipheriv(algo, key, iv);
+    return crypto.createCipheriv(algo, key, IV);
   }
 
-  private createDecryptor(): crypto.DecipherGCM {
-    const algo = this.getAlgorithm();
-    const key = this.getKeyHash();
-    const iv = this.getIV();
+  private createDecryptor(
+    alg?: CryptoAlgorithm,
+    iv?: Buffer,
+    secret?: Buffer,
+  ): crypto.DecipherGCM {
+    const algo = this.getAlgorithm(alg);
+    const key = this.getKeyHash(secret);
+    const IV = this.getIV(iv);
 
-    return crypto.createDecipheriv(algo, key, iv);
+    return crypto.createDecipheriv(algo, key, IV);
   }
 
-  private getKeyHash(): Buffer {
+  private getKeyHash(secretKey?: Buffer): Buffer {
+    const key =
+      secretKey || DefaultCryptographerService.toBuffer(this.secretKey || '');
+
     return crypto
       .createHash('sha256')
-      .update(this.secretKey, 'utf-8')
+      .update(key)
       .digest()
       .slice(0, this.getKeyLength());
   }
@@ -63,12 +107,21 @@ export class DefaultCryptographerService implements Cryptographer {
     return 16;
   }
 
-  private getAlgorithm(): CryptoAlgorithm {
-    return this.algorithm || CryptoAlgorithm.AES_256_GCM;
+  private getAlgorithm(alg?: CryptoAlgorithm): CryptoAlgorithm {
+    return alg || this.algorithm || CryptoAlgorithm.AES_256_GCM;
   }
 
-  private getIV(): Buffer {
-    const ivBuffer = this.iv ? Buffer.from(this.iv) : crypto.randomBytes(16);
+  private getIV(iv?: Buffer): Buffer {
+    const ivBuffer =
+      iv ||
+      (this.iv && DefaultCryptographerService.toBuffer(this.iv)) ||
+      crypto.randomBytes(16);
     return ivBuffer.slice(0, 16);
+  }
+
+  private static toBuffer(value: string | Buffer): Buffer {
+    return types.isAnyArrayBuffer(value)
+      ? value
+      : (Buffer.from(value) as Buffer);
   }
 }

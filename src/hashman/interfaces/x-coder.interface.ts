@@ -1,15 +1,33 @@
+import { CryptoAlgorithm } from '../constants/crypto-algorithm.enum';
+
 export interface XCoderOptions {
   dataPassword?: string;
   validUntilTimestamp?: number;
 }
 
-export enum CryptoAlgorithm {
-  AES_128_GCM = 'aes-128-gcm',
-  AES_192_GCM = 'aes-192-gcm',
-  AES_256_GCM = 'aes-256-gcm',
+export interface EncryptionResult {
+  value: Buffer;
+  authTag: Buffer;
+  iv: Buffer;
+  algorithm: CryptoAlgorithm;
+}
+
+export interface CipherOptions {
+  algorithm?: CryptoAlgorithm;
+  iv?: Buffer;
+  secretKey?: string | Buffer;
+}
+
+export interface EncryptOptions extends CipherOptions {
+  value: string | Buffer;
+}
+
+export interface DecryptOptions extends CipherOptions {
+  value: string | Buffer;
+  authTag: string | Buffer;
 }
 
 export interface Cryptographer {
-  encrypt(value: string | Buffer): Promise<Buffer>;
-  decrypt(value: Buffer): Promise<Buffer>;
+  encrypt(options: EncryptOptions): Promise<EncryptionResult>;
+  decrypt(options: DecryptOptions): Promise<Buffer>;
 }
