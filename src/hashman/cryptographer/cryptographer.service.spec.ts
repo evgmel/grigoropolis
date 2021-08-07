@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DefaultCryptographerService } from './default-cryptographer.service';
+import { CryptographerService } from './cryptographer.service';
 import { EncryptionResult } from '../interfaces/x-coder.interface';
 import * as faker from 'faker';
 import { CryptoAlgorithm } from '../constants/crypto-algorithm.enum';
@@ -16,8 +16,8 @@ const createTestModule = async ({
   return Test.createTestingModule({
     providers: [
       {
-        provide: DefaultCryptographerService,
-        useValue: new DefaultCryptographerService(
+        provide: CryptographerService,
+        useValue: new CryptographerService(
           secretKey,
           algorithm,
           iv && iv.toString('utf-8'),
@@ -28,7 +28,7 @@ const createTestModule = async ({
 };
 
 const getCryptographerService = (module: TestingModule) => {
-  return module.get<DefaultCryptographerService>(DefaultCryptographerService);
+  return module.get<CryptographerService>(CryptographerService);
 };
 
 describe('DefaultCryptographerService', () => {
@@ -36,7 +36,7 @@ describe('DefaultCryptographerService', () => {
   const iv = Buffer.from('test-initialization-vector').slice(0, 16);
   const algorithm = CryptoAlgorithm.AES_192_GCM;
 
-  let service: DefaultCryptographerService;
+  let service: CryptographerService;
 
   beforeEach(async () => {
     const module: TestingModule = await createTestModule({

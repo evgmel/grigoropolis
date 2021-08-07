@@ -10,7 +10,7 @@ import { types } from 'util';
 import { CryptoAlgorithm } from '../constants/crypto-algorithm.enum';
 
 @Injectable()
-export class DefaultCryptographerService implements Cryptographer {
+export class CryptographerService implements Cryptographer {
   constructor(
     private readonly secretKey: string,
     private readonly algorithm?: CryptoAlgorithm,
@@ -21,15 +21,14 @@ export class DefaultCryptographerService implements Cryptographer {
     const decryptor = this.createDecryptor(
       options.algorithm,
       options.iv,
-      options.secretKey &&
-        DefaultCryptographerService.toBuffer(options.secretKey),
+      options.secretKey && CryptographerService.toBuffer(options.secretKey),
     );
 
     const authTag =
-      options.authTag && DefaultCryptographerService.toBuffer(options.authTag);
+      options.authTag && CryptographerService.toBuffer(options.authTag);
 
     decryptor.setAuthTag(authTag);
-    const value = DefaultCryptographerService.toBuffer(options.value);
+    const value = CryptographerService.toBuffer(options.value);
 
     return Buffer.concat([decryptor.update(value), decryptor.final()]);
   }
@@ -38,11 +37,10 @@ export class DefaultCryptographerService implements Cryptographer {
     const encryptor = this.createEncryptor(
       options.algorithm,
       options.iv,
-      options.secretKey &&
-        DefaultCryptographerService.toBuffer(options.secretKey),
+      options.secretKey && CryptographerService.toBuffer(options.secretKey),
     );
 
-    const value = DefaultCryptographerService.toBuffer(options.value);
+    const value = CryptographerService.toBuffer(options.value);
 
     const encryptedValue = Buffer.concat([
       encryptor.update(value),
@@ -84,7 +82,7 @@ export class DefaultCryptographerService implements Cryptographer {
 
   private getKeyHash(secretKey?: Buffer): Buffer {
     const key =
-      secretKey || DefaultCryptographerService.toBuffer(this.secretKey || '');
+      secretKey || CryptographerService.toBuffer(this.secretKey || '');
 
     return crypto
       .createHash('sha256')
@@ -114,7 +112,7 @@ export class DefaultCryptographerService implements Cryptographer {
   private getIV(iv?: Buffer): Buffer {
     const ivBuffer =
       iv ||
-      (this.iv && DefaultCryptographerService.toBuffer(this.iv)) ||
+      (this.iv && CryptographerService.toBuffer(this.iv)) ||
       crypto.randomBytes(16);
     return ivBuffer.slice(0, 16);
   }
