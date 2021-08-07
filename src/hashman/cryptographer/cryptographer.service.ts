@@ -62,7 +62,8 @@ export class CryptographerService implements Cryptographer {
     secret?: Buffer,
   ): crypto.CipherGCM {
     const algo = this.getAlgorithm(alg);
-    const key = this.getKeyHash(secret);
+    const keyLength = this.getKeyLength(alg);
+    const key = this.getKeyHash(secret, keyLength);
     const IV = this.getIV(iv);
 
     return crypto.createCipheriv(algo, key, IV);
@@ -74,25 +75,21 @@ export class CryptographerService implements Cryptographer {
     secret?: Buffer,
   ): crypto.DecipherGCM {
     const algo = this.getAlgorithm(alg);
-    const key = this.getKeyHash(secret);
+    const keyLength = this.getKeyLength(alg);
+    const key = this.getKeyHash(secret, keyLength);
     const IV = this.getIV(iv);
 
     return crypto.createDecipheriv(algo, key, IV);
   }
 
-  private getKeyHash(secretKey?: Buffer): Buffer {
-    const key =
-      secretKey || CryptographerService.toBuffer(this.secretKey || '');
+  private getKeyHash(secretKey?: Buffer, keyLength?: number): Buffer {
+    const key = secretKey || CryptographerService.toBuffer(this.secretKey);
 
-    return crypto
-      .createHash('sha256')
-      .update(key)
-      .digest()
-      .slice(0, this.getKeyLength());
+    return crypto.createHash('sha256').update(key).digest().slice(0, keyLength);
   }
 
-  private getKeyLength(): number {
-    const algorithm = this.getAlgorithm();
+  private getKeyLength(alg?: CryptoAlgorithm): number {
+    const algorithm = this.getAlgorithm(alg);
 
     if (algorithm === CryptoAlgorithm.AES_256_GCM) {
       return 32;

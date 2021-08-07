@@ -52,37 +52,66 @@ describe('DefaultCryptographerService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should encrypt and decrypt value', async () => {
-    const valueToEncrypt = faker.company.companyName();
+  it.each([
+    CryptoAlgorithm.AES_128_GCM,
+    CryptoAlgorithm.AES_192_GCM,
+    CryptoAlgorithm.AES_256_GCM,
+  ])(
+    'should encrypt and decrypt value: %s',
+    async (algorithm: CryptoAlgorithm) => {
+      const valueToEncrypt = faker.company.companyName();
 
-    const encResult: EncryptionResult = await service.encrypt({
-      value: valueToEncrypt,
-    });
+      const encResult: EncryptionResult = await service.encrypt({
+        value: valueToEncrypt,
+        algorithm,
+      });
 
-    const decryptedValue: Buffer = await service.decrypt({
-      value: encResult.value,
-      authTag: encResult.authTag,
-    });
+      const decryptedValue: Buffer = await service.decrypt({
+        value: encResult.value,
+        authTag: encResult.authTag,
+        algorithm,
+      });
 
-    expect(decryptedValue.toString('utf-8')).toBe(valueToEncrypt);
-  });
+      expect(decryptedValue.toString('utf-8')).toBe(valueToEncrypt);
+    },
+  );
 
-  it('should encrypt value', async () => {
-    const valueToEncrypt = 'some-test-secret';
+  it.each([
+    {
+      alg: CryptoAlgorithm.AES_128_GCM,
+      expectedValue: 'dj/B2XUfPptDrfMEoIiDcg==',
+      expectedAuthTag: 'Av152spQsaEffTeVFTvcLA==',
+    },
+    {
+      alg: CryptoAlgorithm.AES_192_GCM,
+      expectedValue: 'aHmQaywOUcPVD3un87rleQ==',
+      expectedAuthTag: 'Bwuzo3FaXxKdPJXbkKD7pg==',
+    },
+    {
+      alg: CryptoAlgorithm.AES_256_GCM,
+      expectedValue: 'eeh44+VGqJJjBwKZPQO+bg==',
+      expectedAuthTag: '2IZABxG/yy87q0aiDWC9GA==',
+    },
+  ])(
+    'should encrypt value',
+    async ({ alg: algorithm, expectedValue, expectedAuthTag }) => {
+      const valueToEncrypt = 'some-test-secret';
 
-    const encResult: EncryptionResult = await service.encrypt({
-      value: valueToEncrypt,
-    });
+      const encResult: EncryptionResult = await service.encrypt({
+        value: valueToEncrypt,
+        algorithm,
+      });
 
-    const expectedResult: EncryptionResult = {
-      value: Buffer.from('aHmQaywOUcPVD3un87rleQ==', 'base64'),
-      authTag: Buffer.from('Bwuzo3FaXxKdPJXbkKD7pg==', 'base64'),
-      iv,
-      algorithm,
-    };
+      const expectedResult: EncryptionResult = {
+        value: Buffer.from(expectedValue, 'base64'),
+        authTag: Buffer.from(expectedAuthTag, 'base64'),
+        iv,
+        algorithm,
+      };
 
-    expect(encResult).toEqual(expectedResult);
-  });
+      expect(encResult).toEqual(expectedResult);
+    },
+  );
 
   it('should get same encrypted value with fixed IV', async () => {
     const valueToEncrypt = faker.company.companyName();
