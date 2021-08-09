@@ -2,7 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CryptographerService } from './cryptographer.service';
 import { EncryptionResult } from '../interfaces';
 import * as faker from 'faker';
-import { CryptoAlgorithm } from '../constants/crypto-algorithm.enum';
+import { CryptoAlgorithm } from '../constants';
+
+const UNSUPPORTED_STATE_ERROR_MSG =
+  'Unsupported state or unable to authenticate data';
 
 const createTestModule = async ({
   secretKey,
@@ -144,5 +147,94 @@ describe('DefaultCryptographerService', () => {
     });
 
     expect(encResult).not.toEqual(encResultWithAnotherIV);
+  });
+
+  it('should fail to decrypt value with invalid IV', async () => {
+    const encryptedValue: EncryptionResult = await service.encrypt({
+      value: faker.company.companyName(),
+    });
+
+    const invalidIV = Buffer.alloc(16);
+
+    await expect(async () => {
+      await service.decrypt({
+        value: encryptedValue.value,
+        authTag: encryptedValue.authTag,
+        algorithm: encryptedValue.algorithm,
+        iv: invalidIV,
+      });
+    }).rejects.toThrowError(UNSUPPORTED_STATE_ERROR_MSG);
+  });
+
+  it('should fail to decrypt value with invalid auth tag', async () => {
+    const encryptedValue: EncryptionResult = await service.encrypt({
+      value: faker.company.companyName(),
+    });
+
+    const invalidAuthTag = Buffer.alloc(encryptedValue.authTag.length);
+
+    await expect(async () => {
+      await service.decrypt({
+        value: encryptedValue.value,
+        authTag: invalidAuthTag,
+        algorithm: encryptedValue.algorithm,
+        iv: encryptedValue.iv,
+      });
+    }).rejects.toThrowError(UNSUPPORTED_STATE_ERROR_MSG);
+  });
+
+  it('should fail to decrypt value if auth tag length is invalid', async () => {
+    const encryptedValue: EncryptionResult = await service.encrypt({
+      value: faker.company.companyName(),
+    });
+
+    const invalidAuthTag = Buffer.alloc(encryptedValue.authTag.length + 1);
+
+    await expect(async () => {
+      await service.decrypt({
+        value: encryptedValue.value,
+        authTag: invalidAuthTag,
+        algorithm: encryptedValue.algorithm,
+        iv: encryptedValue.iv,
+      });
+    }).rejects.toThrowError(/Invalid authentication tag length/);
+  });
+
+  it('should fail to decrypt invalid encrypted value', async () => {
+    const encryptedValue: EncryptionResult = await service.encrypt({
+      value: faker.company.companyName(),
+    });
+
+    const invalidEncryptedValue = Buffer.concat([
+      encryptedValue.value,
+      Buffer.from(faker.random.alpha()),
+    ]);
+
+    await expect(async () => {
+      await service.decrypt({
+        value: invalidEncryptedValue,
+        authTag: encryptedValue.authTag,
+        algorithm: encryptedValue.algorithm,
+        iv: encryptedValue.iv,
+      });
+    }).rejects.toThrowError(UNSUPPORTED_STATE_ERROR_MSG);
+  });
+
+  it('should fail to decrypt value if use inappropriate secret', async () => {
+    const encryptedValue: EncryptionResult = await service.encrypt({
+      value: faker.company.companyName(),
+    });
+
+    const invalidSecret = faker.datatype.hexaDecimal();
+
+    await expect(async () => {
+      await service.decrypt({
+        value: encryptedValue.value,
+        authTag: encryptedValue.authTag,
+        algorithm: encryptedValue.algorithm,
+        iv: encryptedValue.iv,
+        secretKey: invalidSecret,
+      });
+    }).rejects.toThrowError(UNSUPPORTED_STATE_ERROR_MSG);
   });
 });

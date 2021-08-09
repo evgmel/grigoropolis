@@ -7,7 +7,7 @@ import {
   EncryptOptions,
 } from '../interfaces';
 import { types } from 'util';
-import { CryptoAlgorithm } from '../constants/crypto-algorithm.enum';
+import { CryptoAlgorithm } from '../constants';
 
 @Injectable()
 export class CryptographerService implements Cryptographer {
@@ -20,7 +20,7 @@ export class CryptographerService implements Cryptographer {
   async decrypt(options: DecryptOptions): Promise<Buffer> {
     const decryptor = this.createDecryptor(
       options.algorithm,
-      options.iv,
+      options.iv && CryptographerService.toBuffer(options.iv),
       options.secretKey && CryptographerService.toBuffer(options.secretKey),
     );
 
@@ -34,9 +34,11 @@ export class CryptographerService implements Cryptographer {
   }
 
   async encrypt(options: EncryptOptions): Promise<EncryptionResult> {
+    const suppliedIV = options.iv && CryptographerService.toBuffer(options.iv);
+
     const encryptor = this.createEncryptor(
       options.algorithm,
-      options.iv,
+      suppliedIV,
       options.secretKey && CryptographerService.toBuffer(options.secretKey),
     );
 
@@ -51,7 +53,7 @@ export class CryptographerService implements Cryptographer {
     return {
       authTag,
       value: encryptedValue,
-      iv: this.getIV(options.iv),
+      iv: this.getIV(suppliedIV),
       algorithm: this.getAlgorithm(options.algorithm),
     };
   }

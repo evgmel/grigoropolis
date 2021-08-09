@@ -1,4 +1,4 @@
-import { CryptoAlgorithm } from '../constants/crypto-algorithm.enum';
+import { CryptoAlgorithm } from '../constants';
 
 export interface XCoderOptions {
   dataPassword?: string;
@@ -14,7 +14,7 @@ export interface EncryptionResult {
 
 export interface CipherOptions {
   algorithm?: CryptoAlgorithm;
-  iv?: Buffer;
+  iv?: string | Buffer;
   secretKey?: string | Buffer;
 }
 
